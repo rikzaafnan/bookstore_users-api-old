@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 var (
@@ -37,16 +38,30 @@ func CreateUser(c *gin.Context) {
 	result, saveErr := services.CreateUser(user)
 	if saveErr != nil {
 		// 	todo : handle user creation errors
+		c.JSON(http.StatusBadRequest, saveErr)
 		return
 	}
-	fmt.Println(result)
-	fmt.Println(user)
 
 	c.JSON(http.StatusCreated, result)
 }
 
 func GetUser(c *gin.Context) {
-	c.String(http.StatusNotImplemented, "implement me")
+
+	userID, err := strconv.ParseInt(c.Param("userID"), 10, 64)
+	if err != nil {
+		err := errors.NewBadRequestError(fmt.Sprintf("invalid user id %d", userID))
+		c.JSON(err.Status, err)
+		return
+	}
+
+	result, saveErr := services.GetUser(userID)
+	if saveErr != nil {
+		// 	todo : handle user creation errors
+		c.JSON(http.StatusBadRequest, saveErr)
+		return
+	}
+
+	c.JSON(http.StatusCreated, result)
 }
 
 func SearchUser(c *gin.Context) {
