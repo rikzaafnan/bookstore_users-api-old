@@ -2,18 +2,23 @@ package user
 
 import (
 	"bookstore_users-api/domain/users"
+	"bookstore_users-api/logger"
 	"bookstore_users-api/services"
 	"bookstore_users-api/utils/errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
-var (
-	counter int
-)
+// var (
+// 	counter int
+// )
 
 func CreateUser(c *gin.Context) {
 	var user users.User
@@ -174,4 +179,61 @@ func Search(c *gin.Context) {
 		return
 	}
 
+}
+
+func Upload(c *gin.Context) {
+
+	// dir, err := os.Getwd()
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, "failed")
+	// }
+
+	// logger.Info(fmt.Sprintf("ini test folder dimana simpennya :: %s", dir))
+
+	// single file
+	file, _ := c.FormFile("file")
+
+	filename := file.Filename
+
+	if file.Filename != "" {
+		filename = fmt.Sprintf("%s-%d%s", file.Filename, time.Now().UTC().Unix(), filepath.Ext(file.Filename))
+	}
+
+	// saveFileLocation := filepath.Join(dir, "files", filename)
+	saveFileLocation := filepath.Join("files", filename)
+	logger.Info(fmt.Sprintf("ini test folder dimana simpennya :: %s", saveFileLocation))
+
+	// open folder, kalo gaada create folder
+	files, err := os.Open("files")
+	if err != nil {
+		logger.Error("error : ", err)
+
+		_ = os.Mkdir("files", 0666)
+
+		// c.JSON(http.StatusBadRequest, "failed")
+		// return
+	}
+	defer files.Close()
+
+	// open file
+	targetFile, err := os.OpenFile(saveFileLocation, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		logger.Error("error : ", err)
+
+		// c.JSON(http.StatusBadRequest, "failed")
+		// return
+	}
+	defer targetFile.Close()
+
+	// save file
+	// upload the file to specific dst.
+	c.SaveUploadedFile(file, saveFileLocation)
+
+	responseSuccessUploadFile := map[string]string{
+		"status": "success uplaod",
+		"url":    saveFileLocation,
+		"code":   fmt.Sprintf("%d", http.StatusCreated),
+	}
+
+	c.JSON(http.StatusCreated, responseSuccessUploadFile)
 }

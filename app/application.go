@@ -2,6 +2,8 @@ package app
 
 import (
 	"bookstore_users-api/logger"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,6 +12,8 @@ var (
 )
 
 func StartApplication() {
+	router.Use(cors.Default())
+
 	MapUrls()
 
 	logger.Info("about to start the application...")

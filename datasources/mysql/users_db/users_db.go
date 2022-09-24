@@ -25,7 +25,7 @@ var (
 
 	// username = "root"
 	// password = "root"
-	// host     = "172.20.0.1:3306"
+	// host     = "103.186.30.178:35200"
 	// schema   = "udemy_users_db"
 
 	// username = "root"
